@@ -5,6 +5,14 @@
 # ferdi-internal-server
 Internal Ferdi Server used for storing settings without logging into an external server.
 
+## Differences to ferdi-server
+- Doesn't contain user management (only one user)
+- Doesn't require logging in
+- No recipe creation
+- Contains `start.js` script to allow starting the server via script
+- Uses `env.ini` instead of `.env` to stay compatible with Ferdi's build script
+- Only allows Ferdi clients to connect to the API
+
 ## Configuration
 franz-server's configuration is saved inside the `env.ini` file. Besides AdonisJS's settings, ferdi-internal-server has the following custom settings:
 - `CONNECT_WITH_FRANZ` (`true` or `false`, default: `true`): Whether to enable connections to the Franz server. By enabling this option, ferdi-server can:
