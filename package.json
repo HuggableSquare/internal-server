@@ -1,6 +1,6 @@
 {
   "name": "ferdi-internal-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "adonis-version": "4.1.0",
   "description": "Internal server used by the Ferdi application.",
   "main": "index.js",
