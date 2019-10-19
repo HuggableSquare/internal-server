@@ -38,10 +38,10 @@ Route.group(() => {
 
   // Service info
   Route.post('service', 'ServiceController.create');
+  Route.put('service/reorder', 'ServiceController.reorder');
   Route.put('service/:id', 'ServiceController.edit');
   Route.delete('service/:id', 'ServiceController.delete');
   Route.get('me/services', 'ServiceController.list');
-  Route.put('service/reorder', 'ServiceController.reorder');
   Route.get('recipe', 'ServiceController.list');
   Route.post('recipes/update', 'ServiceController.update');
 
