@@ -9,8 +9,7 @@
     "test": "node ace test",
     "lint": "eslint --fix ./"
   },
-  "keywords": [
-  ],
+  "keywords": [],
   "author": "",
   "license": "MIT License",
   "private": true,

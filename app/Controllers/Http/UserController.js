@@ -1,3 +1,4 @@
+const User = use('App/Models/User');
 const Service = use('App/Models/Service');
 const Workspace = use('App/Models/Workspace');
 const {
@@ -76,6 +77,8 @@ class UserController {
   async me({
     response,
   }) {
+    const user = await User.find(1);
+
     return response.send({
       accountType: 'individual',
       beta: false,
@@ -89,8 +92,34 @@ class UserController {
       isSubscriptionOwner: true,
       lastname: 'Application',
       locale: 'en-US',
+      ...user.settings || {},
     });
   }
+
+  async updateMe({
+    request,
+    response,
+  }) {
+    const user = await User.find(1);
+
+    let settings = user.settings || {};
+    if (typeof settings === 'string') {
+      settings = JSON.parse(settings);
+    }
+
+    let newSettings = {
+      ...settings,
+      ...request.all(),
+    }
+
+    user.settings = JSON.stringify(newSettings);
+    await user.save();
+
+    return response.send({
+      status: 'success'
+    });
+  }
+
 
 
   async import({
