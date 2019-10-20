@@ -94,7 +94,7 @@ class UserController {
       isSubscriptionOwner: true,
       lastname: 'Application',
       locale: 'en-US',
-      ...settings || {},
+      ...settings || {},
     });
   }
 
@@ -109,10 +109,10 @@ class UserController {
       settings = JSON.parse(settings);
     }
 
-    let newSettings = {
+    const newSettings = {
       ...settings,
       ...request.all(),
-    }
+    };
 
     user.settings = JSON.stringify(newSettings);
     await user.save();
@@ -135,11 +135,9 @@ class UserController {
       },
       status: [
         'data-updated',
-      ]
+      ],
     });
   }
-
-
 
   async import({
     request,
