@@ -79,6 +79,8 @@ class UserController {
   }) {
     const user = await User.find(1);
 
+    const settings = typeof user.settings === 'string' ? JSON.parse(user.settings) : user.settings;
+
     return response.send({
       accountType: 'individual',
       beta: false,
@@ -92,7 +94,7 @@ class UserController {
       isSubscriptionOwner: true,
       lastname: 'Application',
       locale: 'en-US',
-      ...user.settings || {},
+      ...settings || {},
     });
   }
 
@@ -128,7 +130,7 @@ class UserController {
       isSubscriptionOwner: true,
       lastname: 'Application',
       locale: 'en-US',
-      ...user.settings || {},
+      ...newSettings,
     });
   }
 
