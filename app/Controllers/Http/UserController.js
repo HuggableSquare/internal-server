@@ -116,7 +116,19 @@ class UserController {
     await user.save();
 
     return response.send({
-      status: 'success'
+      accountType: 'individual',
+      beta: false,
+      donor: {},
+      email: '',
+      emailValidated: true,
+      features: {},
+      firstname: 'Ferdi',
+      id: '82c1cf9d-ab58-4da2-b55e-aaa41d2142d8',
+      isPremium: true,
+      isSubscriptionOwner: true,
+      lastname: 'Application',
+      locale: 'en-US',
+      ...user.settings || {},
     });
   }
 
