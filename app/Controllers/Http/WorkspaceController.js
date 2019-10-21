@@ -13,7 +13,7 @@ class WorkspaceController {
   }) {
     // Validate user input
     const validation = await validateAll(request.all(), {
-      name: 'required|alpha',
+      name: 'required',
     });
     if (validation.fails()) {
       return response.status(401).send({
@@ -135,7 +135,7 @@ class WorkspaceController {
         id: workspace.workspaceId,
         name: workspace.name,
         order: workspace.order,
-        services: JSON.parse(workspace.services),
+        services: typeof workspace.services === "string" ? JSON.parse(workspace.services) : workspace.services,
         userId: 1,
       }));
     }
