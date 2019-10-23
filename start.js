@@ -23,7 +23,9 @@ process.env.ENV_PATH = path.join(__dirname, 'env.ini');
 const { Ignitor } = require('@adonisjs/ignitor');
 const fold = require('@adonisjs/fold');
 
-module.exports = (dbPath, port) => {
+module.exports = (userPath, port) => {
+  const dbPath = path.join(userPath, 'server.sqlite');
+
   if (!fs.existsSync(dbPath)) {
     fs.copySync(
       path.join(__dirname, 'database', 'template.sqlite'),
@@ -32,6 +34,7 @@ module.exports = (dbPath, port) => {
   }
 
   process.env.DB_PATH = dbPath;
+  process.env.USER_PATH = userPath;
   process.env.PORT = port;
 
   new Ignitor(fold)

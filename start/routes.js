@@ -43,10 +43,11 @@ Route.group(() => {
   Route.put('service/:id', 'ServiceController.edit');
   Route.delete('service/:id', 'ServiceController.delete');
   Route.get('me/services', 'ServiceController.list');
-  Route.get('recipe', 'ServiceController.list');
-  Route.post('recipes/update', 'ServiceController.update');
+  Route.get('icon/:id', 'ServiceController.icon');
 
   // Recipe store
+  Route.get('recipe', 'ServiceController.list');
+  Route.post('recipes/update', 'ServiceController.update');
   Route.get('recipes', 'RecipeController.list');
   Route.get('recipes/download/:recipe', 'RecipeController.download');
   Route.get('recipes/search', 'RecipeController.search');

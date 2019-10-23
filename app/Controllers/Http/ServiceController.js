@@ -2,8 +2,11 @@ const Service = use('App/Models/Service');
 const {
   validateAll,
 } = use('Validator');
+const Env = use('Env');
 
 const uuid = require('uuid/v4');
+const path = require('path');
+const fs = require('fs-extra');
 
 class ServiceController {
   // Create a new service for user
@@ -66,24 +69,28 @@ class ServiceController {
   }) {
     const services = (await Service.all()).rows;
     // Convert to array with all data Franz wants
-    const servicesArray = services.map(service => ({
-      customRecipe: false,
-      hasCustomIcon: false,
-      isBadgeEnabled: true,
-      isDarkModeEnabled: '',
-      isEnabled: true,
-      isMuted: false,
-      isNotificationEnabled: true,
-      order: 1,
-      spellcheckerLanguage: '',
-      workspaces: [],
-      iconUrl: null,
-      ...JSON.parse(service.settings),
-      id: service.serviceId,
-      name: service.name,
-      recipeId: service.recipeId,
-      userId: 1,
-    }));
+    const servicesArray = services.map((service) => {
+      const settings = typeof service.settings === "string" ? JSON.parse(service.settings) : service.settings;
+
+      return {
+        customRecipe: false,
+        hasCustomIcon: false,
+        isBadgeEnabled: true,
+        isDarkModeEnabled: '',
+        isEnabled: true,
+        isMuted: false,
+        isNotificationEnabled: true,
+        order: 1,
+        spellcheckerLanguage: '',
+        workspaces: [],
+        ...JSON.parse(service.settings),
+        iconUrl: settings.iconId ? `http://127.0.0.1:${Env.get('PORT')}/v1/icon/${settings.iconId}` : null,
+        id: service.serviceId,
+        name: service.name,
+        recipeId: service.recipeId,
+        userId: 1,
+      }
+    });
 
     return response.send(servicesArray);
   }
@@ -93,49 +100,128 @@ class ServiceController {
     response,
     params,
   }) {
-    // Validate user input
-    const validation = await validateAll(request.all(), {
-      name: 'required',
-    });
-    if (validation.fails()) {
-      return response.status(401).send({
-        message: 'Invalid POST arguments',
-        messages: validation.messages(),
-        status: 401,
+    if (request.file('icon')) {
+      // Upload custom service icon
+      await fs.ensureDir(path.join(Env.get('USER_PATH'), 'icons'));
+
+      const icon = request.file('icon', {
+        types: ['image'],
+        size: '2mb'
+      });
+      const {
+        id,
+      } = params;
+      const service = (await Service.query()
+        .where('serviceId', id).fetch()).rows[0];
+      const settings = typeof service.settings === "string" ? JSON.parse(service.settings) : service.settings;
+
+      // Generate new icon ID
+      let iconId;
+      do {
+        iconId = uuid() + uuid();
+      } while(await fs.exists(path.join(Env.get('USER_PATH'), 'icons', iconId)));
+      
+      await icon.move(path.join(Env.get('USER_PATH'), 'icons'), {
+        name: iconId,
+        overwrite: true
+      })
+
+      if (!icon.moved()) {
+        return response.status(500).send(icon.error());
+      }
+
+      const newSettings = {
+        ...settings,
+        ...{
+          iconId,
+          customIconVersion: settings && settings.customIconVersion ? settings.customIconVersion + 1 : 1,
+        },
+      };
+
+      // Update data in database
+      await (Service.query()
+        .where('serviceId', id)).update({
+        name: service.name,
+        settings: JSON.stringify(newSettings),
+      });
+
+      return response.send({
+        data: {
+          id,
+          name: service.name,
+          ...newSettings,
+          iconUrl: `http://127.0.0.1:${Env.get('PORT')}/v1/icon/${newSettings.iconId}`,
+          userId: 1,
+        },
+        status: ["updated"]
+      });
+    } else {
+      // Update service info
+      const validation = await validateAll(request.all(), {
+        name: 'required',
+      });
+      if (validation.fails()) {
+        return response.status(401).send({
+          message: 'Invalid POST arguments',
+          messages: validation.messages(),
+          status: 401,
+        });
+      }
+
+      const data = request.all();
+      const {
+        id,
+      } = params;
+
+      // Get current settings from db
+      const serviceData = (await Service.query()
+        .where('serviceId', id).fetch()).rows[0];
+
+      const settings = {
+        ...typeof serviceData.settings === "string" ? JSON.parse(serviceData.settings) : serviceData.settings,
+        ...data,
+      };
+
+      // Update data in database
+      await (Service.query()
+        .where('serviceId', id)).update({
+        name: data.name,
+        settings: JSON.stringify(settings),
+      });
+
+      // Get updated row
+      const service = (await Service.query()
+        .where('serviceId', id).fetch()).rows[0];
+
+      return response.send({
+        data: {
+          id,
+          name: service.name,
+          ...settings,
+          iconUrl: `${Env.get('APP_URL')}/v1/icon/${settings.iconId}`,
+          userId: 1,
+        },
+        status: ["updated"]
       });
     }
+  }
 
-    const data = request.all();
+  async icon({
+    params,
+    response,
+  }) {
     const {
       id,
     } = params;
 
-    // Get current settings from db
-    const serviceData = (await Service.query()
-      .where('serviceId', id).fetch()).rows[0];
+    const iconPath = path.join(Env.get('USER_PATH'), 'icons', id);
+    if (!await fs.exists(iconPath)) {
+      return response.status(404).send({
+        status: 'Icon doesn\'t exist'
+      });
+    }
 
-    const settings = {
-      ...JSON.parse(serviceData.settings),
-      ...data,
-    };
-
-    // Update data in database
-    await (Service.query()
-      .where('serviceId', id)).update({
-      name: data.name,
-      settings: JSON.stringify(settings),
-    });
-
-    // Get updated row
-    const service = (await Service.query()
-      .where('serviceId', id).fetch()).rows[0];
-
-    return response.send({
-      id: service.serviceId,
-      name: data.name,
-      ...settings,
-      userId: 1,
-    });
+    return response.download(iconPath);
   }
 
   async reorder({
@@ -165,24 +251,28 @@ class ServiceController {
     // Get new services
     const services = (await Service.all()).rows;
     // Convert to array with all data Franz wants
-    const servicesArray = services.map(service => ({
-      customRecipe: false,
-      hasCustomIcon: false,
-      isBadgeEnabled: true,
-      isDarkModeEnabled: '',
-      isEnabled: true,
-      isMuted: false,
-      isNotificationEnabled: true,
-      order: 1,
-      spellcheckerLanguage: '',
-      workspaces: [],
-      iconUrl: null,
-      ...JSON.parse(service.settings),
-      id: service.serviceId,
-      name: service.name,
-      recipeId: service.recipeId,
-      userId: 1,
-    }));
+    const servicesArray = services.map((service) => {
+      const settings = typeof service.settings === "string" ? JSON.parse(service.settings) : service.settings;
+
+      return {
+        customRecipe: false,
+        hasCustomIcon: false,
+        isBadgeEnabled: true,
+        isDarkModeEnabled: '',
+        isEnabled: true,
+        isMuted: false,
+        isNotificationEnabled: true,
+        order: 1,
+        spellcheckerLanguage: '',
+        workspaces: [],
+        ...JSON.parse(service.settings),
+        iconUrl: settings.iconId ? `http://127.0.0.1:${Env.get('PORT')}/v1/icon/${settings.iconId}` : null,
+        id: service.serviceId,
+        name: service.name,
+        recipeId: service.recipeId,
+        userId: 1,
+      }
+    });
 
     return response.send(servicesArray);
   }
