@@ -217,7 +217,7 @@ class StaticController {
   announcement({
     response,
   }) {
-    return response.status(404).send('No announcement found.');
+    return response.send({});
   }
 }
 
