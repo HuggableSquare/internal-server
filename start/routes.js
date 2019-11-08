@@ -9,6 +9,10 @@
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use('Route');
 
+// Run latest database migration
+const migrate = require('./migrate');
+migrate();
+
 const OnlyAllowFerdi = async ({ request, response }, next) => {
   const user = request.header('User-Agent');
   if (!/Ferdi\/\d(\.\d){2}/g.test(user)) {

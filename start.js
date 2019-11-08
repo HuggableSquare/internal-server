@@ -15,6 +15,8 @@
 |     Also you can preload files by calling `preLoad('path/to/file')` method.
 |     Make sure to pass a relative path from the project root.
 */
+process.env.FERDI_VERSION = '5.4.0-beta.5';
+
 const path = require('path');
 const fs = require('fs-extra');
 
