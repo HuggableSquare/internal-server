@@ -17,3 +17,5 @@ recipes/
 .DS_Store
 public/terms.html
 public/privacy.html
+
+user_data/
