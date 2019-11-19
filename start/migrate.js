@@ -5,9 +5,7 @@ const Database = use('Database');
 const User = use('App/Models/User');
 
 const migrateLog = text => {
-  if(process.env.NODE_ENV !== 'production') {
-    console.log('\x1b[36m%s\x1b[0m', 'Ferdi Migration:', '\x1b[0m', text);
-  }
+  // console.log('\x1b[36m%s\x1b[0m', 'Ferdi Migration:', '\x1b[0m', text);
 }
 
 module.exports = async () => {
