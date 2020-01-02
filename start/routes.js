@@ -65,7 +65,7 @@ Route.group(() => {
   Route.get('workspace', 'WorkspaceController.list');
 
   // Static responses
-  Route.get('features', 'StaticController.features');
+  Route.get('features/:mode?', 'StaticController.features');
   Route.get('services', 'StaticController.emptyArray');
   Route.get('news', 'StaticController.emptyArray');
   Route.get('payment/plans', 'StaticController.plans');
