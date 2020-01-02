@@ -76,5 +76,10 @@ Route.group(() => {
 Route.post('import', 'UserController.import');
 Route.get('import', ({ view }) => view.render('import'));
 
+// Account transfer
+Route.get('export', 'UserController.export');
+Route.post('transfer', 'UserController.importFerdi');
+Route.get('transfer', ({ view }) => view.render('transfer'));
+
 // Index
 Route.get('/', ({ view }) => view.render('index'));
