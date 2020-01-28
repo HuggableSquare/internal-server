@@ -57,7 +57,7 @@ class WorkspaceController {
   }) {
     // Validate user input
     const validation = await validateAll(request.all(), {
-      name: 'required|alpha',
+      name: 'required',
       services: 'required|array',
     });
     if (validation.fails()) {
@@ -99,12 +99,12 @@ class WorkspaceController {
     params,
   }) {
     // Validate user input
-    const validation = await validateAll(request.all(), {
+    const validation = await validateAll(params, {
       id: 'required',
     });
     if (validation.fails()) {
       return response.status(401).send({
-        message: 'Invalid POST arguments',
+        message: 'Invalid arguments',
         messages: validation.messages(),
         status: 401,
       });
