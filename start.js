@@ -31,7 +31,10 @@ module.exports = (userPath, port) => {
   if (!fs.existsSync(dbPath)) {
     // Manually copy file
     // We can't use copyFile here as it will cause the file to be readonly on Windows
+    const origNoAsar = process.noAsar;
+    process.noAsar = true;
     fs.writeFileSync(dbPath, fs.readFileSync(path.join(__dirname, 'database', 'template.sqlite')));
+    process.noAsar = origNoAsar;
   }
 
   process.env.DB_PATH = dbPath;
