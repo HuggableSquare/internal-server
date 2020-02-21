@@ -25,13 +25,17 @@ process.env.ENV_PATH = path.join(__dirname, 'env.ini');
 const { Ignitor } = require('@adonisjs/ignitor');
 const fold = require('@adonisjs/fold');
 
-module.exports = (userPath, port) => {
+module.exports = async (userPath, port) => {
   const dbPath = path.join(userPath, 'server.sqlite');
+  const dbTemplatePath = path.join(__dirname, 'database', 'template.sqlite');
 
-  if (!fs.existsSync(dbPath)) {
+  if (!await fs.exists(dbPath)) {
     // Manually copy file
     // We can't use copyFile here as it will cause the file to be readonly on Windows
-    fs.writeFileSync(dbPath, fs.readFileSync(path.join(__dirname, 'database', 'template.sqlite')));
+    const dbTemplate = await fs.readFile(dbTemplatePath);
+    await fs.writeFile(dbPath, dbTemplate);
+    // Change permissions to ensure to file is not read-only
+    fs.chmodSync(dbPath, 0666);
   }
 
   process.env.DB_PATH = dbPath;
