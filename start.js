@@ -35,7 +35,7 @@ module.exports = async (userPath, port) => {
     const dbTemplate = await fs.readFile(dbTemplatePath);
     await fs.writeFile(dbPath, dbTemplate);
     // Change permissions to ensure to file is not read-only
-    fs.chmodSync(dbPath, 0666);
+    fs.chmodSync(dbPath, '666');
   }
 
   process.env.DB_PATH = dbPath;
