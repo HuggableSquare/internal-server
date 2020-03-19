@@ -19,6 +19,7 @@ process.env.FERDI_VERSION = '5.4.0-beta.5';
 
 const path = require('path');
 const fs = require('fs-extra');
+const os = require('os');
 
 process.env.ENV_PATH = path.join(__dirname, 'env.ini');
 
@@ -34,8 +35,11 @@ module.exports = async (userPath, port) => {
     // We can't use copyFile here as it will cause the file to be readonly on Windows
     const dbTemplate = await fs.readFile(dbTemplatePath);
     await fs.writeFile(dbPath, dbTemplate);
+
     // Change permissions to ensure to file is not read-only
-    fs.chmodSync(dbPath, '666');
+    if (os.platform() === 'win32') {
+      fs.chmodSync(dbPath, fs.statSync(dbPath).mode | '666');
+    }
   }
 
   process.env.DB_PATH = dbPath;
