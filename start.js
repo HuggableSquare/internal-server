@@ -38,7 +38,7 @@ module.exports = async (userPath, port) => {
 
     // Change permissions to ensure to file is not read-only
     if (os.platform() === 'win32') {
-      fs.chmodSync(dbPath, fs.statSync(dbPath).mode | '666');
+      fs.chmodSync(dbPath, fs.statSync(dbPath).mode | 146);
     }
   }
 
