@@ -14,8 +14,8 @@ const migrate = require('./migrate');
 migrate();
 
 const OnlyAllowFerdi = async ({ request, response }, next) => {
-  const user = request.header('User-Agent');
-  if (!/Ferdi\/\d(\.\d){2}/g.test(user)) {
+  const version = request.header('X-Franz-Version');
+  if (!version) {
     return response.status(403).redirect('/');
   }
 
