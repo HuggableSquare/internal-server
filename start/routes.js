@@ -47,7 +47,6 @@ Route.group(() => {
   Route.put('service/:id', 'ServiceController.edit');
   Route.delete('service/:id', 'ServiceController.delete');
   Route.get('me/services', 'ServiceController.list');
-  Route.get('icon/:id', 'ServiceController.icon');
 
   // Recipe store
   Route.get('recipe', 'ServiceController.list');
@@ -71,6 +70,10 @@ Route.group(() => {
   Route.get('payment/plans', 'StaticController.plans');
   Route.get('announcements/:version', 'StaticController.announcement');
 }).prefix('v1').middleware(OnlyAllowFerdi);
+
+Route.group(() => {
+  Route.get('icon/:id', 'ServiceController.icon');
+}).prefix('v1');
 
 // Franz account import
 Route.post('import', 'UserController.import');
