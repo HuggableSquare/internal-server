@@ -118,9 +118,9 @@ class ServiceController {
       // Generate new icon ID
       let iconId;
       do {
-        iconId = uuid() + uuid();
+        iconId = `${uuid()}${uuid()}.${icon.extname}`;
       } while(await fs.exists(path.join(Env.get('USER_PATH'), 'icons', iconId)));
-      
+
       await icon.move(path.join(Env.get('USER_PATH'), 'icons'), {
         name: iconId,
         overwrite: true
